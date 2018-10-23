@@ -1,0 +1,126 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
+version = libraryVersion
+android {
+    compileSdkVersion 26
+    buildToolsVersion '28.0.3'
+
+    defaultConfig {
+        applicationId "test.roadwork.geosat.tainan.tw.myapplication"
+        minSdkVersion 14
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    testImplementation 'junit:junit:4.12'
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support:design:26.1.0'
+}
+
+ext{
+    bintrayRepo = 'maven'
+    bintrayName = 'Tivon' // 發佈到JCenter上的專案名稱
+
+    publishedGroupId = 'com.tivon' // GID
+    libraryName = 'Tivon'
+    artifact = 'Tivon'
+
+    libraryDescription = 'Test'
+
+    siteUrl = 'https://github.com/shiuyuting/android'   // 项目的主页
+    gitUrl = 'https://github.com/shiuyuting/android.git'   // Git仓库的url
+
+    libraryVersion ='1.1.2'
+
+    developerId = 'Tivon'
+    developerName = 'Tivon'
+    developerEmail = 'shiu.yuting@gmail.com'
+
+        licensename 'The Apache Software License, Version 2.0'
+        licenseurl 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+
+}
+apply from: "install.gradle"
+apply from: "bintray.gradle"
+
+group = publishedGroupId            // Maven Group ID for the artifact，
+install {
+    repositories.mavenInstaller {
+        // This generates POM.xml with proper parameters
+        pom {
+            project {
+                packaging 'aar'
+                groupId publishedGroupId
+                artifactId artifact
+                // Add your description here
+                name libraryName
+                //项目的描述 你可以多写一点
+                description libraryDescription
+                url siteUrl
+                // Set your license
+                licenses {
+                    license {
+                        name licensename
+                        url licenseurl
+                    }
+                }
+                developers {
+                    developer {
+                        id developerId        //填写的一些基本信息
+                        name developerName
+                        email developerEmail
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+                }
+            }
+        }
+    }
+}
+task sourcesJar(type: Jar){
+            from android.sourceSets.main.java.srcDirs
+            classifier = 'sources'
+        }
+//task javadoc(type: Javadoc){
+//options.encoding = 'UTF-8'
+//source = android.sourceSets.main.java.srcDirs
+// classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+//}
+//task javadocJar(type: Jar, dependsOn: javadoc) {
+//    classifier = 'javadoc'
+//    from javadoc.destinationDir
+//}
+artifacts {
+//    archives javadocJar
+    archives sourcesJar
+}
+Properties properties = new Properties()//读取properties的配置信息，当然直接把信息写到代码里也是可以的
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+bintray {
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+    configurations = ['archives']
+    pkg {
+        userOrg="shiuyuting"
+        repo = "Tivon"          //这个应该是传到maven的仓库的
+        name = "Tivon"    //发布的项目名字
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        licenses = ["Apache-2.0"]
+        publish = true
+    }}
